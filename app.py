@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, session
 from flask_sqlalchemy import SQLAlchemy
-
 import yaml
 
 # from CSVDataManager import CSVDataManager
@@ -30,28 +29,23 @@ dataManager = MySQLDataManager(db)
 def index():
 
     if request.method == "POST":
-
         # id which form was submitted
         form_name = request.form.get("form_name")
 
         # custom index: 
         # change url to url at given index
         if form_name == "custom_index_form":
-            index = int(request.form['custom_index'])
-            url = dataManager.get_url(index)
-            session["image_id"] = index
+            session["image_id"] = int(request.form['custom_index'])
 
         # next:
         # for moving on after visiting previous image index with no new bbox value
         elif form_name == "next_form":
             session["image_id"] += 1
-            url = dataManager.get_url(session["image_id"])
 
         # previous:
         # move to image at index - 1
         elif form_name == "previous_form":
             session["image_id"] -= 1
-            url = dataManager.get_url(session["image_id"])
 
         # submit bbox:
         # extract bbox list
@@ -59,40 +53,31 @@ def index():
         elif form_name == "submit_bbox_form":
             bbox = request.form['submit_bbox_button']
             # check for empty submission
-            if bbox == 'Submit':
-                url = dataManager.get_url(session["image_id"])
-            else:
+            if bbox != 'Submit':
                 bbox = bbox.strip('submit bbox = []').split(',')
                 bbox = [int(x) for x in bbox]
                 dataManager.write_bbox(session["image_id"], str(bbox))
                 session["image_id"] += 1
-                url = dataManager.get_url(session["image_id"])
 
         # not found:
         # write not found to csv at index of current image
         elif form_name == "not_found_form":
             dataManager.write_bbox(session["image_id"], 'not found')
             session["image_id"] += 1
-            url = dataManager.get_url(session["image_id"])
-    
+
 
     # loading page
     elif request.method == "GET":
-
-        try:
-            url = dataManager.get_url(session["image_id"])
-        except:
+        if not isinstance(session["image_id"], int):
             session["image_id"] = 1
-            url = dataManager.get_url(session["image_id"])
-            session_counter += 1
-    
-    
-    bbox_instance = dataManager.get_bbox_instance(session["image_id"])
+        
+
+    bbox_instance = dataManager.get_instance(session["image_id"])
 
     existing_bbox = bbox_instance.bbox
     existing_bbox = "[]" if existing_bbox == "nan" else existing_bbox
 
-    data = {'image_url': url, 
+    data = {'image_url': bbox_instance.image_path, 
             'category': bbox_instance.object_category_name, 
             'index': session["image_id"], 
             'max_index': str(dataManager.max_id),
@@ -103,10 +88,3 @@ def index():
 
 if __name__ == "__main__": 
     app.run(host='0.0.0.0')
-
-
-
-       
-"""
-
-"""
