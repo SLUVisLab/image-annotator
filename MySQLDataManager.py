@@ -92,11 +92,3 @@ class MySQLDataManager(DataManager):
         self.db.session.commit()
         self.db.session.close()
 
-
-    def _reset_bbox_col(self):
-        # change all bbox values to nan if not already
-        result = self.db.session.query(self.Bbox).filter(self.Bbox.bbox != 'nan').all()
-        for r in result:
-            r.bbox = 'nan'
-        self.db.session.commit()
-        self.db.session.close()
