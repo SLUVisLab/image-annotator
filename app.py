@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
+import yaml
 
 # from CSVDataManager import CSVDataManager
 from MySQLDataManager import MySQLDataManager
@@ -7,10 +8,13 @@ from MySQLDataManager import MySQLDataManager
 
 app = Flask(__name__)
 
-mysql_user = None
-mysql_pass = None
-mysql_db = None
-app_secret_key = None
+with open("../conf/app.yml", "r") as stream:
+   conf = yaml.safe_load(stream)
+
+mysql_user = conf['mysql']['username']
+mysql_pass = conf['mysql']['password']
+mysql_db = conf['mysql']['database']
+app_secret_key = conf['app']['secret_key']
 
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+mysqldb://{mysql_user}:{mysql_pass}@localhost/{mysql_db}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
