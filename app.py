@@ -71,10 +71,10 @@ def index():
 
     # loading page
     elif request.method == "GET":
-        if not isinstance(session["image_id"], int):
+        if not "image_id" in session:
             session["image_id"] = 1
-        
 
+    print(session["image_id"])
     bbox_instance = dataManager.get_instance(session["image_id"])
     existing_bbox = bbox_instance.bbox
     existing_bbox = "[]" if existing_bbox == "nan" else existing_bbox
