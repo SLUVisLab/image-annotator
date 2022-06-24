@@ -20,8 +20,6 @@ class MySQLDataManager(DataManager):
         self.Bbox = Base.classes.bbox
 
         self.max_id = self._get_max_id()
-        self.current_id = 0
-        self.current_img = None
         
 
     def _get_max_id(self):
@@ -30,8 +28,8 @@ class MySQLDataManager(DataManager):
         self.db.session.close()
         return result.id
 
-
-    def next_blank_img(self):
+    """
+    def next_blank_img(self, index):
         # return the first instance with id greater than current id and nan bbox value
         result = self.db.session.query(self.Bbox).filter(self.Bbox.bbox == 'nan',
                                                          self.Bbox.id >= self.current_id).first()
@@ -39,55 +37,27 @@ class MySQLDataManager(DataManager):
         self.current_img = result.image_path
         self.db.session.close()
         return self.current_img
+    """
 
 
-    def next_img(self):
+    def get_url(self, index):
         # dont allow an id greater than max_id
-        if (self.current_id + 1) <= self.max_id:
-            result = self.db.session.query(self.Bbox).filter(self.Bbox.id == (self.current_id + 1)).first()
-            self.current_id = result.id
-            self.current_img = result.image_path
+        if index >= 1 and index <= self.max_id:
+            result = self.db.session.query(self.Bbox).filter(self.Bbox.id == index).first()
             self.db.session.close()
-        return self.current_img
+            return result.image_path
 
-
-    def previous_img(self):
-        # dont allow an id less than one
-        if (self.current_id - 1) >= 1:
-            result = self.db.session.query(self.Bbox).filter(self.Bbox.id == (self.current_id - 1)).first()
-            self.current_id = result.id
-            self.current_img = result.image_path
+    def get_bbox_instance(self, index):
+        # dont allow an id greater than max_id
+        if index >= 1 and index <= self.max_id:
+            result = self.db.session.query(self.Bbox).filter(self.Bbox.id == index).first()
             self.db.session.close()
-        return self.current_img
+            return result
 
 
-    def custom_img(self, i):
-        # make sure id is in range [1, max_id] inclusive
-        if i >= 1 and i <= self.max_id:
-            result = self.db.session.query(self.Bbox).filter(self.Bbox.id == i).first()
-            self.current_id = result.id
-            self.current_img = result.image_path
-            self.db.session.close()
-        return self.current_img
-    
-
-    def category(self, url):
-        # return object category associated with given url
-        result = self.db.session.query(self.Bbox).filter(self.Bbox.image_path == url).first()
-        self.db.session.close()
-        return result.object_category_name
-
-
-    def bbox(self, url):
-        # return bbox value associated with given url
-        result = self.db.session.query(self.Bbox).filter(self.Bbox.image_path == url).first()
-        self.db.session.close()
-        return result.bbox
-
-
-    def write_bbox(self, bbox):
+    def write_bbox(self, index, bbox):
         # write given bbox value to bbox column at current id
-        result = self.db.session.query(self.Bbox).filter(self.Bbox.id == self.current_id).first()
+        result = self.db.session.query(self.Bbox).filter(self.Bbox.id == index).first()
         result.bbox = bbox
         self.db.session.commit()
         self.db.session.close()

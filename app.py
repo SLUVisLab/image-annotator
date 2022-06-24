@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session
 from flask_sqlalchemy import SQLAlchemy
+
 import yaml
 
 # from CSVDataManager import CSVDataManager
@@ -37,7 +38,20 @@ def index():
         # change url to url at given index
         if form_name == "custom_index_form":
             index = int(request.form['custom_index'])
-            url = dataManager.custom_img(index)
+            url = dataManager.get_url(index)
+            session["image_id"] = index
+
+        # next:
+        # for moving on after visiting previous image index with no new bbox value
+        elif form_name == "next_form":
+            session["image_id"] += 1
+            url = dataManager.get_url(session["image_id"])
+
+        # previous:
+        # move to image at index - 1
+        elif form_name == "previous_form":
+            session["image_id"] -= 1
+            url = dataManager.get_url(session["image_id"])
 
         # submit bbox:
         # extract bbox list
@@ -46,40 +60,41 @@ def index():
             bbox = request.form['submit_bbox_button']
             # check for empty submission
             if bbox == 'Submit':
-                url = dataManager.current_img
+                url = dataManager.get_url(session["image_id"])
             else:
                 bbox = bbox.strip('submit bbox = []').split(',')
                 bbox = [int(x) for x in bbox]
-                dataManager.write_bbox(str(bbox))
-                url = dataManager.next_blank_img()
+                dataManager.write_bbox(session["image_id"], str(bbox))
+                session["image_id"] += 1
+                url = dataManager.get_url(session["image_id"])
 
         # not found:
         # write not found to csv at index of current image
         elif form_name == "not_found_form":
-            dataManager.write_bbox('not found')
-            url = dataManager.next_img()
-
-        # next:
-        # for moving on after visiting previous image index with no new bbox value
-        elif form_name == "next_form":
-            url = dataManager.next_img()
-
-        # previous:
-        # move to image at index - 1
-        elif form_name == "previous_form":
-            url = dataManager.previous_img()
+            dataManager.write_bbox(session["image_id"], 'not found')
+            session["image_id"] += 1
+            url = dataManager.get_url(session["image_id"])
     
+
     # loading page
     elif request.method == "GET":
-        url = dataManager.next_img()
+
+        try:
+            url = dataManager.get_url(session["image_id"])
+        except:
+            session["image_id"] = 1
+            url = dataManager.get_url(session["image_id"])
+            session_counter += 1
     
-    cat = dataManager.category(url)
-    existing_bbox = dataManager.bbox(url)
+    
+    bbox_instance = dataManager.get_bbox_instance(session["image_id"])
+
+    existing_bbox = bbox_instance.bbox
     existing_bbox = "[]" if existing_bbox == "nan" else existing_bbox
 
     data = {'image_url': url, 
-            'category': cat, 
-            'index': str(dataManager.current_id), 
+            'category': bbox_instance.object_category_name, 
+            'index': session["image_id"], 
             'max_index': str(dataManager.max_id),
             'bbox': existing_bbox}
 
@@ -88,3 +103,10 @@ def index():
 
 if __name__ == "__main__": 
     app.run(host='0.0.0.0')
+
+
+
+       
+"""
+
+"""
