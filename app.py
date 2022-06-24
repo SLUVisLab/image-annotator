@@ -35,7 +35,10 @@ def index():
         # custom index: 
         # change url to url at given index
         if form_name == "custom_index_form":
-            session["image_id"] = int(request.form['custom_index'])
+            index = int(request.form['custom_index'])
+            # make sure custom index is in range [1, max_id] inclusive
+            if index >= 1 and index <= dataManager.max_id:
+                session["image_id"] = index
 
         # next:
         # for moving on after visiting previous image index with no new bbox value
@@ -73,7 +76,6 @@ def index():
         
 
     bbox_instance = dataManager.get_instance(session["image_id"])
-
     existing_bbox = bbox_instance.bbox
     existing_bbox = "[]" if existing_bbox == "nan" else existing_bbox
 

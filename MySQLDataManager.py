@@ -29,15 +29,14 @@ class MySQLDataManager(DataManager):
 
 
     def get_instance(self, index):
-        # dont allow an id greater than max_id
-        if index >= 1 and index <= self.max_id:
-            result = self.db.session.query(self.Bbox).filter(self.Bbox.id == index).first()
-            self.db.session.close()
-            return result
+        # return Bbox object at given index
+        result = self.db.session.query(self.Bbox).filter(self.Bbox.id == index).first()
+        self.db.session.close()
+        return result
 
 
     def write_bbox(self, index, bbox):
-        # write given bbox value to bbox column at current id
+        # write given bbox value to bbox column at given index
         result = self.db.session.query(self.Bbox).filter(self.Bbox.id == index).first()
         result.bbox = bbox
         self.db.session.commit()
