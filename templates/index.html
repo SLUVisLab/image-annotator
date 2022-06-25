@@ -45,6 +45,7 @@
         
         <div class="container">
             <div class="left_col">
+                <center>
                 <h3>Image: {{ data["index"] }} / {{ data["max_index"] }}</h3>
                 <form class="custom_index", action="/", method="post">
                     <label for="custom_index">Go to Image:</label>
@@ -67,13 +68,13 @@
                     <input type="hidden" name="form_name" value="submit_bbox_form">
                     <input type="hidden" name="bbox_value" id="bbox_value" value="[]">
                     <input type="submit" id="submit_bbox_button" name="submit_bbox_button" value="Submit Bbox" class="write_db">
-                </form><br><br><br>
+                </form><br><br>
 
                 <form class="not_found", action="/", method="post">
                     <input type="hidden" name="form_name" value="not_found_form">
                     <input type="submit" value="Object Not Found" id="not_found" name="not_found" class="write_db">
                 </form><br>
-
+                </center>
             </div>
 
             <div class="right_col">
