@@ -71,8 +71,8 @@ $(canvas).on('mouseup', function(e) {
     // send unscaled bbox coordinates to index.html
     var bbox = "[" + Math.round(xmin / img_scale_ratio) + ", " + Math.round(xmax / img_scale_ratio) + ", " + 
                      Math.round(ymin / img_scale_ratio) + ", " + Math.round(ymax / img_scale_ratio) + "]";
-    document.getElementById("bbox_scaled").innerHTML = "Bbox = " + bbox;
-    document.getElementById("submit_bbox_button").value = "submit bbox = " + bbox;
+    document.getElementById("bbox_scaled").innerHTML = "Bounding Box = " + bbox;
+    document.getElementById("bbox_value").value = bbox;
 });
 
 // Mousemove

@@ -15,49 +15,73 @@
         .previous_img, .next_img {
             display: inline-block; 
         }
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin-top: 5%;
+            font-size: 15px;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+        .left_col {
+            margin-right: 7%;
+        }
+        .right_col {
+            margin-left: 7%;
+        }
     </style>
 </head>
 <body>
-    <center>
         
-        <h2>Current Image: {{ data["index"] }} / {{ data["max_index"] }}</h2>
         
-        <form class="custom_index", action="/", method="post">
-            <label for="custom_index">Go to Image:</label>
-            <input type="hidden" name="form_name" value="custom_index_form">
-            <input type="text" id="custom_index" name="custom_index">
-            <input type="submit"><br>
-        </form><br>
+        <div class="container">
+            <div class="left_col">
+                <h3>Image: {{ data["index"] }} / {{ data["max_index"] }}</h3>
+                <form class="custom_index", action="/", method="post">
+                    <label for="custom_index">Go to Image:</label>
+                    <input type="hidden" name="form_name" value="custom_index_form">
+                    <input type="text" id="custom_index" name="custom_index" size="7">
+                    <input type="submit"><br>
+                </form><br>
 
-        <form class="previous_img", action="/", method="post">
-            <input type="hidden" name="form_name" value="previous_form">
-            <input type="submit" value="Previous" id="previous_img" name="previous_img"><br>
-        </form>
+                <form class="previous_img", action="/", method="post">
+                    <input type="hidden" name="form_name" value="previous_form">
+                    <input type="submit" value="Previous" id="previous_img" name="previous_img"><br>
+                </form>
 
-        <form class="next_img", action="/", method="post">
-            <input type="hidden" name="form_name" value="next_form">
-            <input type="submit" value="Next" id="next_img" name="next_img"><br>
-        </form><br><br>
-        
-        <h3>Object: {{data["category"]}}</h3>
-        
-        <form class="not_found", action="/", method="post">
-            <input type="hidden" name="form_name" value="not_found_form">
-            <input type="submit" value="object not found" id="not_found" name="not_found">
-        </form><br>
+                <form class="next_img", action="/", method="post">
+                    <input type="hidden" name="form_name" value="next_form">
+                    <input type="submit" value="Next" id="next_img" name="next_img"><br>
+                </form><br><br>
+            </div>
 
-        <canvas id="canvas"></canvas>
-        
-        <p id="img_size">Image Size = []</p>
-        <p id="bbox_scaled">Bbox = {{ data["bbox"] }}</p>
+            <div class="middle_col">
+                <h2>Object: </h2>
+                <p>{{data["category"]}}</p>
+                
+                <canvas id="canvas"></canvas>
+                
+                <p id="img_size">Image Size = []</p>
+                <p id="bbox_scaled">Bounding Box = {{ data["bbox"] }}</p>
+            </div>
 
-        <form class="submit_bbox", action="/", method="post">
-            <input type="hidden" name="form_name" value="submit_bbox_form">
-            <input type="submit" id="submit_bbox_button" name="submit_bbox_button">
-        </form><br>
+            <div class="right_col">
+                <form class="submit_bbox", action="/", method="post">
+                    <input type="hidden" name="form_name" value="submit_bbox_form">
+                    <input type="hidden" name="bbox_value" id="bbox_value" value="[]">
+                    <input type="submit" id="submit_bbox_button" name="submit_bbox_button" value="submit bbox">
+                </form><br>
+
+                <form class="not_found", action="/", method="post">
+                    <input type="hidden" name="form_name" value="not_found_form">
+                    <input type="submit" value="object not found" id="not_found" name="not_found">
+                </form><br>
+            </div>
+        </div>
         
         <script id="canvas_script" data-url='{{ data["image_url"] }}' src="static/canvas.js"></script>
-    </center>
+
 </body>
 
 </html>

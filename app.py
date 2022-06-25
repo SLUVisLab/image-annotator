@@ -54,10 +54,10 @@ def index():
         # extract bbox list
         # write to csv at index of current image
         elif form_name == "submit_bbox_form":
-            bbox = request.form['submit_bbox_button']
+            bbox = request.form['bbox_value']
             # check for empty submission
-            if bbox != 'Submit':
-                bbox = bbox.strip('submit bbox = []').split(',')
+            if bbox != '[]' and bbox != 'not found':
+                bbox = bbox.strip('[]').split(',')
                 bbox = [int(x) for x in bbox]
                 dataManager.write_bbox(session["image_id"], str(bbox))
                 session["image_id"] += 1
@@ -68,13 +68,11 @@ def index():
             dataManager.write_bbox(session["image_id"], 'not found')
             session["image_id"] += 1
 
-
     # loading page
     elif request.method == "GET":
         if not "image_id" in session:
             session["image_id"] = 1
 
-    print(session["image_id"])
     bbox_instance = dataManager.get_instance(session["image_id"])
     existing_bbox = bbox_instance.bbox
     existing_bbox = "[]" if existing_bbox == "nan" else existing_bbox
