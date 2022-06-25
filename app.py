@@ -43,12 +43,14 @@ def index():
         # next:
         # for moving on after visiting previous image index with no new bbox value
         elif form_name == "next_form":
-            session["image_id"] += 1
+            if session["image_id"] < dataManager.max_id:
+                session["image_id"] += 1
 
         # previous:
         # move to image at index - 1
         elif form_name == "previous_form":
-            session["image_id"] -= 1
+            if session["image_id"] > 1:
+                session["image_id"] -= 1
 
         # submit bbox:
         # extract bbox list
@@ -60,13 +62,15 @@ def index():
                 bbox = bbox.strip('[]').split(',')
                 bbox = [int(x) for x in bbox]
                 dataManager.write_bbox(session["image_id"], str(bbox))
-                session["image_id"] += 1
+                if session["image_id"] < dataManager.max_id:
+                    session["image_id"] += 1
 
         # not found:
         # write not found to csv at index of current image
         elif form_name == "not_found_form":
             dataManager.write_bbox(session["image_id"], 'not found')
-            session["image_id"] += 1
+            if session["image_id"] < dataManager.max_id:
+                session["image_id"] += 1
 
     # loading page
     elif request.method == "GET":
