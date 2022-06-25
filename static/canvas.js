@@ -37,9 +37,8 @@ img.onload = () => {
     try {
         // works if bbox is in format [xmin, xmax, ymin, ymax]
         // extract information into array of ints and scale coordinates to fit canvas
-        var existing_bbox_parsed = existing_bbox.replace("[", "").replace("]", "").replaceAll(", ", ",");
-        var existing_bbox_parsed = existing_bbox_parsed.split(" ");
-        var existing_bbox_parsed = existing_bbox_parsed[2].split(",");
+        var existing_bbox_parsed = existing_bbox.replace("Bounding Box = ", "").replace("[", "").replace("]", "").split(",");
+        console.log(existing_bbox_parsed);
         var existing_bbox_parsed = existing_bbox_parsed.map(function (x) { 
             return Math.round(parseInt(x) * img_scale_ratio); 
         });
