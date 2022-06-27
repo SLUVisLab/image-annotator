@@ -52,6 +52,11 @@ def index():
             if session["image_id"] > 1:
                 session["image_id"] -= 1
 
+        # next empty bbox
+        elif form_name == "next_empty_form":
+            if session["image_id"] < dataManager.max_id:
+                session["image_id"] = dataManager.get_next_empty(session["image_id"])
+
         # submit bbox:
         # extract bbox list
         # write to csv at index of current image
@@ -59,18 +64,16 @@ def index():
             bbox = request.form['bbox_value']
             # check for empty submission
             if bbox != '[]' and bbox != 'not found':
-                bbox = bbox.strip('[]').split(',')
-                bbox = [int(x) for x in bbox]
-                dataManager.write_bbox(session["image_id"], str(bbox))
+                dataManager.write_bbox(session["image_id"], bbox)
                 if session["image_id"] < dataManager.max_id:
-                    session["image_id"] += 1
+                    session["image_id"] = dataManager.get_next_empty(session["image_id"])
 
         # not found:
         # write not found to csv at index of current image
         elif form_name == "not_found_form":
             dataManager.write_bbox(session["image_id"], 'not found')
             if session["image_id"] < dataManager.max_id:
-                session["image_id"] += 1
+                session["image_id"] = dataManager.get_next_empty(session["image_id"])
 
     # loading page
     elif request.method == "GET":

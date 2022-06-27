@@ -18,6 +18,13 @@ var mousedown = false;
 // Storing rectangle corner coordinates
 var xmin, xmax, ymin, ymax;
 
+// Store canvas position
+function canvasPosition() {
+    // store coordinates of top left corner of canvas
+    canvasx = canvas.getBoundingClientRect().left;
+    canvasy = canvas.getBoundingClientRect().top;
+
+}
 
 // Loading in the image
 img.onload = () => {
@@ -25,11 +32,12 @@ img.onload = () => {
     // resizing the canvas to fit a scaled image
     canvas.width = img.width * img_scale_ratio;
     canvas.height = img.height * img_scale_ratio;
-    // store coordinates of top left corner of canvas
-    canvasx = canvas.getBoundingClientRect().left;
-    canvasy = canvas.getBoundingClientRect().top;
+
+    canvasPosition();
+
     // draw image on canvas, send image size to index.html
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
     document.getElementById("img_size").innerHTML = "Image Size = [" + img.width + ", " + img.height + "]";
 
     // check if there is existing bbox information stored for the image
@@ -38,7 +46,6 @@ img.onload = () => {
         // works if bbox is in format [xmin, xmax, ymin, ymax]
         // extract information into array of ints and scale coordinates to fit canvas
         var existing_bbox_parsed = existing_bbox.replace("Bounding Box = ", "").replace("[", "").replace("]", "").split(",");
-        console.log(existing_bbox_parsed);
         var existing_bbox_parsed = existing_bbox_parsed.map(function (x) { 
             return Math.round(parseInt(x) * img_scale_ratio); 
         });
@@ -53,8 +60,13 @@ img.onload = () => {
     }
 };
 
+// Store new canvas position when window resizes
+window.onresize = () => {
+    canvasPosition();
+}
+
 // Mousedown
-$(canvas).on('mousedown', function(e) {
+$(canvas).on('mousedown touchstart', function(e) {
     // store coordinates
     last_mousex = (e.clientX - canvasx);
     last_mousey = (e.clientY - canvasy);
@@ -62,7 +74,7 @@ $(canvas).on('mousedown', function(e) {
 });
 
 // Mouseup
-$(canvas).on('mouseup', function(e) {
+$(canvas).on('mouseup touchend', function(e) {
     // store coordinates
     last_mousex = (e.clientX - canvasx);
     last_mousey = (e.clientY - canvasy);
@@ -75,7 +87,7 @@ $(canvas).on('mouseup', function(e) {
 });
 
 // Mousemove
-$(canvas).on('mousemove', function(e) {
+$(canvas).on('mousemove touchmove', function(e) {
     // store coordinates
     mousex = (e.clientX - canvasx);
     mousey = (e.clientY - canvasy);

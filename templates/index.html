@@ -22,16 +22,18 @@
             font-family: Verdana, Geneva, Tahoma, sans-serif;
         }
         .left_col {
-            position: fixed;
+            flex: 50%;
             margin-top: 5%;
-            margin-left: 25%;
-        }
-        .right_col {
-            margin-left: 50%;
+            margin-left: 15%;
             text-align: center;
         }
+        .right_col {
+            text-align: center;
+            flex: 50%;
+            margin-right: 15%;
+        }
         input.change_img {
-            width: 7em;  
+            width: 10em;  
             height: 2em;
         }
         input.write_db {
@@ -45,7 +47,7 @@
         
         <div class="container">
             <div class="left_col">
-                <center>
+
                 <h3>Image: {{ data["index"] }} / {{ data["max_index"] }}</h3>
                 <form class="custom_index", action="/", method="post">
                     <label for="custom_index">Go to Image:</label>
@@ -62,6 +64,11 @@
                 <form class="next_img", action="/", method="post">
                     <input type="hidden" name="form_name" value="next_form">
                     <input type="submit" value="Next" id="next_img" name="next_img" class="change_img"><br>
+                </form><br><br>
+                
+                <form class="next_empty_img", action="/", method="post">
+                    <input type="hidden" name="form_name" value="next_empty_form">
+                    <input type="submit" value="Next Empty Bbox" id="next_empty_img" name="next_empty_img" class="change_img"><br>
                 </form><br><br><br><br><br>
 
                 <form class="submit_bbox", action="/", method="post">
@@ -74,7 +81,7 @@
                     <input type="hidden" name="form_name" value="not_found_form">
                     <input type="submit" value="Object Not Found" id="not_found" name="not_found" class="write_db">
                 </form><br>
-                </center>
+
             </div>
 
             <div class="right_col">
