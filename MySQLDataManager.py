@@ -46,13 +46,17 @@ class MySQLDataManager(DataManager):
 
     def write_bbox(self, index, bbox):
         # write given bbox value to bbox column at given index
-        bbox = bbox.strip('[]').split(',')
-        bbox = [int(x) for x in bbox]
         result = self.db.session.query(self.Bbox).filter(self.Bbox.id == index).first()
-        img = io.imread(result.image_path)
-        # check for negative bbox values
-        if not any([x < 0 for x in bbox]):
-            result.bbox = str(bbox)
+        if bbox == 'not found':
+            result.bbox = bbox
             self.db.session.commit()
             self.db.session.close()
+        else:
+            bbox = bbox.strip('[]').split(',')
+            bbox = [int(x) for x in bbox]
+            # check for negative bbox values
+            if not any([x < 0 for x in bbox]):
+                result.bbox = str(bbox)
+                self.db.session.commit()
+                self.db.session.close()
 
