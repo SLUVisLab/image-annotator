@@ -1,4 +1,3 @@
-from cv2 import Param_UNSIGNED_INT
 from flask import Flask, render_template, request, session
 from flask_sqlalchemy import SQLAlchemy
 import yaml
@@ -29,6 +28,8 @@ dataManager = MySQLDataManager(db)
 @app.route("/", methods=["GET", "POST"])
 def index():
 
+    if "image_id" not in session:
+        session["image_id"] = 1
     result = None
 
     if request.method == "POST":
@@ -72,7 +73,6 @@ def index():
     # not have a bbox, and not pending to show to user
     # move buttons
     # say another object is in the image
-
     session["image_id"] = result.id
     existing_bbox = result.bbox
     existing_bbox = "[]" if existing_bbox == "nan" else existing_bbox
