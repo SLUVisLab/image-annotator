@@ -22,23 +22,36 @@
             font-family: Verdana, Geneva, Tahoma, sans-serif;
         }
         .left_col {
-            flex: 50%;
-            margin-top: 5%;
+            flex: 25%;
+            margin-top: 10%;
             margin-left: 15%;
             text-align: center;
         }
         .right_col {
             text-align: center;
-            flex: 50%;
+            flex: 75%;
             margin-right: 15%;
         }
-        input.change_img {
-            width: 10em;  
+        input.bottom_buttons {
+            width: 5em;  
             height: 2em;
         }
-        input.write_db {
+        input.top_buttons {
             width: 10em;  
             height: 3em;
+        }
+        input.custom_index {
+            text-align: right;
+        }
+        header > h4 { 
+            display: inline-block; 
+            margin-bottom: 5%;
+        }
+        header h2 {
+            margin-bottom: 0;
+        }
+        header span {
+            margin-left: 5%;
         }
     </style>
 </head>
@@ -48,45 +61,47 @@
         <div class="container">
             <div class="left_col">
 
-                <h3>Image: {{ data["index"] }} / {{ data["max_index"] }}</h3>
-                <form class="custom_index", action="/", method="post">
-                    <label for="custom_index">Go to Image:</label>
-                    <input type="hidden" name="form_name" value="custom_index_form">
-                    <input type="text" id="custom_index" name="custom_index" size="10">
-                    <input type="submit" class="change_img"><br>
-                </form><br>
-
-                <form class="previous_img", action="/", method="post">
-                    <input type="hidden" name="form_name" value="previous_form">
-                    <input type="submit" value="Previous" id="previous_img" name="previous_img" class="change_img"><br>
-                </form>
-
-                <form class="next_img", action="/", method="post">
-                    <input type="hidden" name="form_name" value="next_form">
-                    <input type="submit" value="Next" id="next_img" name="next_img" class="change_img"><br>
-                </form><br><br>
-                
-                <form class="next_empty_img", action="/", method="post">
-                    <input type="hidden" name="form_name" value="next_empty_form">
-                    <input type="submit" value="Next Empty Bbox" id="next_empty_img" name="next_empty_img" class="change_img"><br>
-                </form><br><br><br><br><br>
-
                 <form class="submit_bbox", action="/", method="post">
                     <input type="hidden" name="form_name" value="submit_bbox_form">
                     <input type="hidden" name="bbox_value" id="bbox_value" value="[]">
-                    <input type="submit" id="submit_bbox_button" name="submit_bbox_button" value="Submit Bbox" class="write_db">
+                    <input type="submit" id="submit_bbox_button" name="submit_bbox_button" value="Submit Bbox" class="top_buttons">
                 </form><br><br>
 
                 <form class="not_found", action="/", method="post">
                     <input type="hidden" name="form_name" value="not_found_form">
-                    <input type="submit" value="Object Not Found" id="not_found" name="not_found" class="write_db">
+                    <input type="submit" value="Object Not Found" id="not_found" name="not_found" class="top_buttons">
+                </form><br><br>
+                
+                <form class="next_empty_img", action="/", method="post">
+                    <input type="hidden" name="form_name" value="next_empty_form">
+                    <input type="submit" value="Next Empty Bbox" id="next_empty_img" name="next_empty_img" class="top_buttons"><br>
+                </form><br><br><br><br><br>
+
+                <form class="custom_index", action="/", method="post">
+                    <label for="custom_index">Go to Image:</label>
+                    <input type="hidden" name="form_name" value="custom_index_form">
+                    <input type="text" id="custom_index" name="custom_index" size="7" value="{{ data['index'] }}" class="custom_index">
+                    <input type="submit" class="bottom_buttons"><br>
                 </form><br>
 
+                <form class="previous_img", action="/", method="post">
+                    <input type="hidden" name="form_name" value="previous_form">
+                    <input type="submit" value="Prev" id="previous_img" name="previous_img" class="bottom_buttons"><br>
+                </form>
+
+                <form class="next_img", action="/", method="post">
+                    <input type="hidden" name="form_name" value="next_form">
+                    <input type="submit" value="Next" id="next_img" name="next_img" class="bottom_buttons"><br>
+                </form>
             </div>
 
             <div class="right_col">
-                <h2>Object: </h2>
-                <p>{{data["category"]}}</p>
+                
+                <header>
+                    <h2>Image: {{ data["index"] }} / {{ data["max_index"] }}</h2>
+                    <h4>Object: </h4>
+                    <span>{{data["category"]}}</span>
+                </header>
                 
                 <canvas id="canvas"></canvas>
                 

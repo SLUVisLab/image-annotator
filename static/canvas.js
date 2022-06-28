@@ -65,26 +65,11 @@ window.onresize = () => {
     canvasPosition();
 }
 
-// Prevent scrolling when touching the canvas
-document.body.addEventListener("touchstart", function (e) {
-    if (e.target == canvas) {
-      e.preventDefault();
-    }
-  }, false);
-  document.body.addEventListener("touchend", function (e) {
-    if (e.target == canvas) {
-      e.preventDefault();
-    }
-  }, false);
-  document.body.addEventListener("touchmove", function (e) {
-    if (e.target == canvas) {
-      e.preventDefault();
-    }
-  }, false);
-  
+// https://stackoverflow.com/questions/55190677/html-canvas-help-for-touchscreen
 
 // Mousedown
 $(canvas).on('mousedown touchstart', function(e) {
+    e.preventDefault();
     // store coordinates
     last_mousex = (e.clientX - canvasx);
     last_mousey = (e.clientY - canvasy);
@@ -110,6 +95,7 @@ $(canvas).on('mousemove touchmove', function(e) {
     mousex = (e.clientX - canvasx);
     mousey = (e.clientY - canvasy);
     if(mousedown) {
+        e.preventDefault();
         // clear canvas and redraw image
         ctx.clearRect(0, 0, canvas.width, canvas.height); 
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);

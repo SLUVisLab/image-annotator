@@ -29,19 +29,51 @@ class MySQLDataManager(DataManager):
         return result.id
 
 
-    def get_instance(self, index):
+    def _get_instance(self, index):
         # return Bbox object at given index
         result = self.db.session.query(self.Bbox).filter(self.Bbox.id == index).first()
-        self.db.session.close()
+        result.status = 'pending'
+        self.db.session.commit()
         return result
 
-    
-    def get_next_empty(self, index):
-        # return first image after given index with a nan bbox value
-        result = self.db.session.query(self.Bbox).filter(self.Bbox.id >= index,
-                                                         self.Bbox.bbox == 'nan').first()
+
+    def _mark_open(self, index):
+        # return Bbox object at given index
+        result = self.db.session.query(self.Bbox).filter(self.Bbox.id == index).first()
+        result.status = 'open'
+        self.db.session.commit()
         self.db.session.close()
-        return result.id
+
+
+    def get_next(self, current_index):
+        self._mark_open(current_index)
+        if current_index < self.max_id:
+            current_index += 1
+        return self._get_instance(current_index)
+
+
+    def get_previous(self, current_index):
+        self._mark_open(current_index)
+        if current_index > 1:
+            current_index -= 1
+        return self._get_instance(current_index)
+
+
+    def get_custom(self, current_index, custom_index):
+        self._mark_open(current_index)
+        if custom_index >= 1 and custom_index <= self.max_id:
+            current_index = custom_index
+        return self._get_instance(current_index)
+
+
+    def get_next_empty(self, current_index):
+        self._mark_open(current_index)
+        # return first image after given index with a nan bbox value
+        result = self.db.session.query(self.Bbox).filter(self.Bbox.id >= current_index) \
+                                                 .filter(self.Bbox.bbox == 'nan') \
+                                                 .filter(self.Bbox.status == 'open').first()
+        self.db.session.close()
+        return self._get_instance(result.id)
 
 
     def write_bbox(self, index, bbox):
@@ -49,6 +81,7 @@ class MySQLDataManager(DataManager):
         result = self.db.session.query(self.Bbox).filter(self.Bbox.id == index).first()
         if bbox == 'not found':
             result.bbox = bbox
+            result.status = 'open'
             self.db.session.commit()
             self.db.session.close()
         else:
@@ -57,6 +90,7 @@ class MySQLDataManager(DataManager):
             # check for negative bbox values
             if not any([x < 0 for x in bbox]):
                 result.bbox = str(bbox)
+                result.status = 'open'
                 self.db.session.commit()
                 self.db.session.close()
 
