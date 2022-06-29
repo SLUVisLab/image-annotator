@@ -41,8 +41,13 @@ class MySQLDataManager:
         if next_index is not None:
             if next_index >= 1 and next_index <= self.max_id:
                 # go to image regardless of nan bbox, still must be open
-                next_img = self.db.session.query(self.Bbox).filter(self.Bbox.id == next_index) \
-                                                            .filter(self.Bbox.status == 'open').first()
+                if next_index < current_index:
+                    next_img = self.db.session.query(self.Bbox).filter(self.Bbox.id <= next_index) \
+                                                               .filter(self.Bbox.status == 'open') \
+                                                               .order_by(self.Bbox.id.desc()).first()
+                else:
+                    next_img = self.db.session.query(self.Bbox).filter(self.Bbox.id >= next_index) \
+                                                                .filter(self.Bbox.status == 'open').first()
         else:
             # go to next image with nan bbox and is open
             next_img = self.db.session.query(self.Bbox).filter(self.Bbox.id >= current_index) \
