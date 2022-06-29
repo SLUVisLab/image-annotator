@@ -80,7 +80,7 @@
                 <form class="custom_index", action="/", method="post">
                     <label for="custom_index">Go to Image:</label>
                     <input type="hidden" name="form_name" value="custom_index_form">
-                    <input type="text" id="custom_index" name="custom_index" size="7" value="{{ data['index'] }}" class="custom_index">
+                    <input type="text" id="custom_index" name="custom_index" size="7" value="{{ data['index'] }}" class="custom_index" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
                     <input type="submit" class="bottom_buttons"><br>
                 </form><br>
 

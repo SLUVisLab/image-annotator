@@ -1,10 +1,7 @@
 from sqlalchemy.ext.automap import automap_base
-from skimage import io
+from sqlalchemy import or_
 
-from DataManager import DataManager
-
-
-class MySQLDataManager(DataManager):
+class MySQLDataManager:
 
     """
     Responsible for:
@@ -25,72 +22,45 @@ class MySQLDataManager(DataManager):
     def _get_max_id(self):
         # return the last id in the table
         result = self.db.session.query(self.Bbox).order_by(self.Bbox.id.desc()).first()
-        self.db.session.close()
+        self.close_session()
         return result.id
 
 
-    def _get_instance(self, index):
-        # return Bbox object at given index
-        result = self.db.session.query(self.Bbox).filter(self.Bbox.id == index).first()
-        result.status = 'pending'
-        self.db.session.commit()
-        return result
+    def get_instance(self, session_id, current_index, next_index=None, bbox=None):
 
+        current_img = self.db.session.query(self.Bbox).filter(self.Bbox.id == current_index).first()
+        # mark current image as open
+        current_img.status = 'open'
+        current_img.session_id = 'nan'
+        # write bbox if given
+        if bbox is not None:
+            current_img.bbox = bbox
 
-    def _mark_open(self, index):
-        # return Bbox object at given index
-        result = self.db.session.query(self.Bbox).filter(self.Bbox.id == index).first()
-        result.status = 'open'
-        self.db.session.commit()
-        self.db.session.close()
-
-
-    def get_next(self, current_index):
-        self._mark_open(current_index)
-        if current_index < self.max_id:
-            current_index += 1
-        return self._get_instance(current_index)
-
-
-    def get_previous(self, current_index):
-        self._mark_open(current_index)
-        if current_index > 1:
-            current_index -= 1
-        return self._get_instance(current_index)
-
-
-    def get_custom(self, current_index, custom_index):
-        self._mark_open(current_index)
-        if custom_index >= 1 and custom_index <= self.max_id:
-            current_index = custom_index
-        return self._get_instance(current_index)
-
-
-    def get_next_empty(self, current_index):
-        self._mark_open(current_index)
-        # return first image after given index with a nan bbox value
-        result = self.db.session.query(self.Bbox).filter(self.Bbox.id >= current_index) \
-                                                 .filter(self.Bbox.bbox == 'nan') \
-                                                 .filter(self.Bbox.status == 'open').first()
-        self.db.session.close()
-        return self._get_instance(result.id)
-
-
-    def write_bbox(self, index, bbox):
-        # write given bbox value to bbox column at given index
-        result = self.db.session.query(self.Bbox).filter(self.Bbox.id == index).first()
-        if bbox == 'not found':
-            result.bbox = bbox
-            result.status = 'open'
-            self.db.session.commit()
-            self.db.session.close()
+        next_img = None
+        # get the next image
+        if next_index is not None:
+            if next_index >= 1 and next_index <= self.max_id:
+                # go to image regardless of nan bbox, still must be open
+                next_img = self.db.session.query(self.Bbox).filter(self.Bbox.id == next_index) \
+                                                            .filter(self.Bbox.status == 'open').first()
         else:
-            bbox = bbox.strip('[]').split(',')
-            bbox = [int(x) for x in bbox]
-            # check for negative bbox values
-            if not any([x < 0 for x in bbox]):
-                result.bbox = str(bbox)
-                result.status = 'open'
-                self.db.session.commit()
-                self.db.session.close()
+            # go to next image with nan bbox and is open
+            next_img = self.db.session.query(self.Bbox).filter(self.Bbox.id >= current_index) \
+                                                       .filter(self.Bbox.bbox == 'nan') \
+                                                       .filter(or_(self.Bbox.status == 'open',
+                                                                   self.Bbox.session_id == session_id)).first()
+
+        # if next_img is not a NoneType
+        if next_img is not None:
+            next_img.status = 'pending'
+            next_img.session_id = session_id
+            self.db.session.commit()
+            # return the next image
+            return next_img
+        
+        return current_img
+
+    
+    def close_session(self):
+        self.db.session.close()
 

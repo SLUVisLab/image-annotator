@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request, session
 from flask_sqlalchemy import SQLAlchemy
 import yaml
+import uuid
 
-# from CSVDataManager import CSVDataManager
 from MySQLDataManager import MySQLDataManager
 
 
@@ -30,49 +30,46 @@ def index():
 
     if "image_id" not in session:
         session["image_id"] = 1
-    result = None
+
+    if "session_id" not in session:
+        session["session_id"] = uuid.uuid4()
+        
+    params = {
+        "session_id": session["session_id"],
+        "current_index": session["image_id"],
+        "next_index": None,
+        "bbox": None
+    }
 
     if request.method == "POST":
         # id which form was submitted
         form_name = request.form.get("form_name")
 
-        params = {"current_index": session["image_id"]}
-
         # custom index
         if form_name == "custom_index_form":
             custom_index = int(request.form['custom_index'])
-            params["custom_index"] = custom_index
+            params["next_index"] = custom_index
+
+        # next
+        elif form_name == "next_form":
+            params["next_index"] = session["image_id"] + 1
+
+        # previous
+        elif form_name == "previous_form":
+            params["next_index"] = session["image_id"] - 1
 
         # submit bbox
         elif form_name == "submit_bbox_form":
             bbox = request.form['bbox_value']
             # check for empty submission
             if bbox != '[]':
-                dataManager.write_bbox(session["image_id"], bbox)
+                params["bbox"] = bbox
 
         # not found
         elif form_name == "not_found_form":
-            dataManager.write_bbox(session["image_id"], 'not found')
+            params["bbox"] = 'not found'
 
-        funcs = {
-            "next_form": dataManager.get_next,
-            "previous_form": dataManager.get_previous,
-            "next_empty_form": dataManager.get_next_empty,
-            "custom_index_form": dataManager.get_custom,
-            "submit_bbox_form": dataManager.get_next_empty,
-            "not_found_form": dataManager.get_next_empty,
-        }
-
-        result = funcs[form_name](**params)
-
-    # loading page
-    elif request.method == "GET":
-        result = dataManager.get_next_empty(session["image_id"])
-
-    # mark image as "pending", time out pending once a night
-    # not have a bbox, and not pending to show to user
-    # move buttons
-    # say another object is in the image
+    result = dataManager.get_instance(**params)
     session["image_id"] = result.id
     existing_bbox = result.bbox
     existing_bbox = "[]" if existing_bbox == "nan" else existing_bbox
@@ -83,8 +80,13 @@ def index():
             'max_index': str(dataManager.max_id),
             'bbox': existing_bbox}
 
+    dataManager.close_session()
+
     return render_template("index.html", data=data)
 
 
 if __name__ == "__main__": 
     app.run(host='0.0.0.0')
+
+# add:
+#    say another object is in the image
