@@ -102,12 +102,12 @@
 
                 <form class="previous_img", action="/", method="post">
                     <input type="hidden" name="form_name" value="previous_form">
-                    <input type="submit" value="Prev" id="previous_img" name="previous_img" class="bottom_buttons"><br>
+                    <input type="submit" value="Prev" id="previous_img" name="previous_img" class="bottom_buttons" onclick="this.form.submit(); this.disabled = true;"><br>
                 </form>
 
                 <form class="next_img", action="/", method="post">
                     <input type="hidden" name="form_name" value="next_form">
-                    <input type="submit" value="Next" id="next_img" name="next_img" class="bottom_buttons"><br>
+                    <input type="submit" value="Next" id="next_img" name="next_img" class="bottom_buttons" onclick="this.form.submit(); this.disabled = true;"><br>
                 </form>
             </div>
 

@@ -1,4 +1,4 @@
-from sched import scheduler
+import time
 from flask import Flask, render_template, request, session
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask_sqlalchemy import SQLAlchemy
@@ -77,6 +77,7 @@ def index():
                 dataManager.change_category(session["image_id"], selected)
                 params["next_index"] = session["image_id"]
 
+    time.sleep(2)
     result = dataManager.get_instance(**params)
     session["image_id"] = result.id
     existing_bbox = result.bbox
@@ -97,3 +98,6 @@ def index():
 if __name__ == "__main__": 
     app.run(host='0.0.0.0')
 
+# spam clicking previous or next doesnt close session (mark as open)
+    # results in one user having multiple images as pending
+# prevent negative bbox values
