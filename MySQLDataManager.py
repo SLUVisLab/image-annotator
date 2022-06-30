@@ -17,13 +17,32 @@ class MySQLDataManager:
         Base.prepare(db.engine, reflect=True)
         self.Bbox = Base.classes.bbox
         self.max_id = self._get_max_id()
+        self.categories = self._get_categories()
         
 
     def _get_max_id(self):
         # return the last id in the table
         result = self.db.session.query(self.Bbox).order_by(self.Bbox.id.desc()).first()
-        self.close_session()
         return result.id
+
+    
+    def _get_categories(self):
+        # return list of distinct category ids
+        categories = []
+        result = self.db.session.query(self.Bbox.object_category_name).distinct()
+        for row in result:
+            categories.append(row.object_category_name)
+        return categories
+
+
+    def change_category(self, index, new_category):
+        result = self.db.session.query(self.Bbox).filter(self.Bbox.id == index).first()
+        # change category
+        result.object_category_name = new_category
+        # reset bbox
+        result.bbox = 'nan'
+        self.db.session.commit()
+        self.close_session()
 
 
     def get_instance(self, session_id, current_index, next_index=None, bbox=None):

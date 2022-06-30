@@ -66,8 +66,13 @@ def index():
                 params["bbox"] = bbox
 
         # not found
-        elif form_name == "not_found_form":
-            params["bbox"] = 'not found'
+        elif form_name == "diff_category_form":
+            selected = request.form.get('category')
+            if selected == 'no':
+                params["bbox"] = 'not found'
+            else:
+                dataManager.change_category(session["image_id"], selected)
+                params["next_index"] = session["image_id"]
 
     result = dataManager.get_instance(**params)
     session["image_id"] = result.id
@@ -78,6 +83,7 @@ def index():
             'category': result.object_category_name, 
             'index': session["image_id"], 
             'max_index': str(dataManager.max_id),
+            'categories': dataManager.categories,
             'bbox': existing_bbox}
 
     dataManager.close_session()

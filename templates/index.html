@@ -36,7 +36,8 @@
             width: 5em;  
             height: 2em;
         }
-        input.top_buttons {
+        input.top_buttons,
+        button.not_found {
             width: 10em;  
             height: 3em;
         }
@@ -67,10 +68,25 @@
                     <input type="submit" id="submit_bbox_button" name="submit_bbox_button" value="Submit Bbox" class="top_buttons">
                 </form><br><br>
 
-                <form class="not_found", action="/", method="post">
-                    <input type="hidden" name="form_name" value="not_found_form">
-                    <input type="submit" value="Object Not Found" id="not_found" name="not_found" class="top_buttons">
-                </form><br><br>
+                <button class="not_found" id="not_found" onclick="unhideForm()">Object Not Found</button><br><br><br>
+
+                <div id="diff_category_div" style="display: none;">
+                    <form class="diff_category", action="/", method="post">
+                        <input type="hidden" name="form_name" value="diff_category_form">
+                        <label for="category">Is there another object in the image?</label>
+                        <select id="category" name="category" onchange="this.form.submit()">
+                            <option selected disabled>Choose one</option>
+                            <optgroup label="Yes">
+                                {% for item in data["categories"] %}
+                                <option value="{{ item }}">{{ item }}</option>
+                                {% endfor %}
+                            </optgroup>
+                            <optgroup label="No">
+                                <option value="no">no</option>
+                            </optgroup>
+                        </select>
+                    </form><br><br>
+                </div>
                 
                 <form class="next_empty_img", action="/", method="post">
                     <input type="hidden" name="form_name" value="next_empty_form">
@@ -112,6 +128,7 @@
         </div>
         
         <script id="canvas_script" data-url='{{ data["image_url"] }}' src="static/canvas.js"></script>
+        <script id="formatting_script" src="static/formatting.js"></script>
 
 </body>
 
