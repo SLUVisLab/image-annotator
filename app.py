@@ -77,7 +77,6 @@ def index():
                 dataManager.change_category(session["image_id"], selected)
                 params["next_index"] = session["image_id"]
 
-    time.sleep(2)
     result = dataManager.get_instance(**params)
     session["image_id"] = result.id
     existing_bbox = result.bbox
