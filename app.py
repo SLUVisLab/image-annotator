@@ -1,4 +1,6 @@
+from sched import scheduler
 from flask import Flask, render_template, request, session
+from apscheduler.schedulers.background import BackgroundScheduler
 from flask_sqlalchemy import SQLAlchemy
 import yaml
 import uuid
@@ -11,18 +13,19 @@ app = Flask(__name__)
 with open("../conf/app.yml", "r") as stream:
    conf = yaml.safe_load(stream)
 
-mysql_user = conf['mysql']['username']
-mysql_pass = conf['mysql']['password']
-mysql_db = conf['mysql']['database']
-app_secret_key = conf['app']['secret_key']
-
-app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+mysqldb://{mysql_user}:{mysql_pass}@localhost/{mysql_db}'
+app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+mysqldb://{ conf['mysql']['username'] }:{ conf['mysql']['password'] }@localhost/{ conf['mysql']['database'] }"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_POOL_SIZE'] = 20
-app.config['SECRET_KEY'] = app_secret_key
+app.config['SECRET_KEY'] = conf['app']['secret_key']
 
 db = SQLAlchemy(app)
 dataManager = MySQLDataManager(db)
+
+
+# reset image status and sessions in db every 24 hours
+sched = BackgroundScheduler(daemon=True)
+sched.add_job(dataManager.reset_sessions, 'interval', hours=24)
+sched.start()
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -94,5 +97,3 @@ def index():
 if __name__ == "__main__": 
     app.run(host='0.0.0.0')
 
-# add:
-#    say another object is in the image

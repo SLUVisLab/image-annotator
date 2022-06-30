@@ -88,3 +88,13 @@ class MySQLDataManager:
     def close_session(self):
         self.db.session.close()
 
+
+    def reset_sessions(self):
+        # get all instances where status is pending or session_id exists
+        result = self.db.session.query(self.Bbox).filter(or_(self.Bbox.status == 'pending',
+                                                             self.Bbox.session_id != 'nan'))
+        for row in result:
+            row.status = 'open'
+            row.session_id = 'nan'
+        self.db.session.commit()
+        self.close_session()
