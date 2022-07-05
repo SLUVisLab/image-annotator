@@ -43,3 +43,4 @@ img_conv = draw_bounding_boxes(img_conv, bbox, width=3, colors = "white")
 img_conv = Image.fromarray(img_conv.permute(1, 2, 0).byte().numpy())
 
 img_conv.show()
+
